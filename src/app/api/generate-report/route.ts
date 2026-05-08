@@ -158,6 +158,7 @@ export async function POST(request: Request) {
         body: parsedErrorBody
       });
 
+      console.error("Anthropic status:", response.status, "body:", errBody);
       return NextResponse.json(
         {
           error:
