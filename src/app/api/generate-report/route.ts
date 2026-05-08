@@ -69,7 +69,9 @@ function validateReport(parsed: unknown): parsed is GeneratedReportSections {
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY || "";
+  console.log("API KEY LENGTH:", apiKey.length);
+
   if (!apiKey) {
     return NextResponse.json(
       {
