@@ -135,6 +135,7 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errBody = await response.text().catch(() => "");
+      console.error("Anthropic error status:", response.status, "Error body:", errBody);
       const requestId =
         response.headers.get("request-id") ??
         response.headers.get("x-request-id") ??
