@@ -10,6 +10,11 @@ type RequestBody = {
   inspectionType?: string;
 };
 
+function truncateForLogs(value: string, maxLength = 1200): string {
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, maxLength)}... [truncated ${value.length - maxLength} chars]`;
+}
+
 function buildPrompt(notes: string, address: string, inspectionType: string): string {
   return `You are a senior certified home inspector drafting a formal, client-facing inspection report. Write in third person ("The inspector observed..."), professional tone, and accurate technical language. Expand and organize the inspector's raw notes into a complete narrative. If certain topics are thin or missing in the notes, still produce a substantive section by inferring typical conditions for ${inspectionType} properties unless the notes explicitly contradict that—always flag uncertainty as "cannot be fully assessed from notes" rather than inventing site-specific measurements.
 
@@ -69,8 +74,7 @@ function validateReport(parsed: unknown): parsed is GeneratedReportSections {
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY || "";
-  console.log("API KEY LENGTH:", apiKey.length);
+  const apiKey = process.env.ANTHROPIC_API_KEY?.trim() || "";
 
   if (!apiKey) {
     return NextResponse.json(
@@ -131,12 +135,37 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errBody = await response.text().catch(() => "");
-      console.error("[generate-report] Anthropic error:", response.status, errBody);
+      const requestId =
+        response.headers.get("request-id") ??
+        response.headers.get("x-request-id") ??
+        "n/a";
+      const retryAfter = response.headers.get("retry-after") ?? "n/a";
+
+      let parsedErrorBody: unknown = errBody;
+      if (errBody) {
+        try {
+          parsedErrorBody = JSON.parse(errBody);
+        } catch {
+          parsedErrorBody = truncateForLogs(errBody);
+        }
+      }
+
+      console.error("[generate-report] Anthropic API error", {
+        status: response.status,
+        statusText: response.statusText,
+        requestId,
+        retryAfter,
+        body: parsedErrorBody
+      });
+
       return NextResponse.json(
         {
-          error: "The AI service returned an error. Please try again in a moment."
+          error:
+            "The AI service returned an error. Check server logs for Anthropic details.",
+          anthropicStatus: response.status,
+          anthropicRequestId: requestId
         },
-        { status: response.status === 529 ? 503 : 502 }
+        { status: response.status }
       );
     }
 

@@ -77,47 +77,40 @@ export default function HomePage() {
               Simple pricing
             </h2>
             <p className="mt-4 text-lg text-slate-600">
-              One plan that covers your team—from first inspections to scaled volume.
+              Choose the plan that fits your inspection volume and team.
             </p>
           </div>
-          <div className="mx-auto max-w-md">
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-card ring-1 ring-slate-950/5 lg:p-10">
-              <p className="text-sm font-semibold uppercase tracking-wider text-accent">
-                Professional
-              </p>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-headline">$99</span>
-                <span className="text-slate-500">/month</span>
-              </div>
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                Full access to AI report generation, export-ready formatting, and
-                prioritized product updates as we ship new inspection templates.
-              </p>
-              <ul className="mt-6 space-y-3 text-sm text-slate-700">
-                {[
-                  "Unlimited AI-generated reports",
-                  "Residential, commercial, and new construction",
-                  "Executive summary plus trade narratives",
-                  "Email support within one business day"
-                ].map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-xs text-white">
-                      ✓
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/signup"
-                className="mt-8 flex w-full items-center justify-center rounded-lg bg-accent py-3.5 text-base font-semibold text-white shadow-md shadow-accent/20 transition hover:bg-accent/92"
-              >
-                Get started
-              </Link>
-              <p className="mt-4 text-center text-xs text-slate-500">
-                No hidden fees · Cancel anytime
-              </p>
-            </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            <PricingCard
+              name="Starter"
+              price="$29"
+              features={[
+                "20 reports per month",
+                "AI generated reports",
+                "Email support"
+              ]}
+            />
+            <PricingCard
+              name="Professional"
+              price="$59"
+              isPopular
+              features={[
+                "Unlimited reports",
+                "AI generated reports",
+                "PDF export",
+                "Priority support"
+              ]}
+            />
+            <PricingCard
+              name="Business"
+              price="$99"
+              features={[
+                "Everything in Professional",
+                "Team members",
+                "Custom branding",
+                "Dedicated support"
+              ]}
+            />
           </div>
         </div>
       </section>
@@ -157,6 +150,57 @@ function FeatureCard({
       </div>
       <h3 className="text-lg font-semibold text-headline">{title}</h3>
       <p className="mt-2 text-[15px] leading-relaxed text-slate-600">{description}</p>
+    </div>
+  );
+}
+
+function PricingCard({
+  name,
+  price,
+  features,
+  isPopular = false
+}: Readonly<{
+  name: string;
+  price: string;
+  features: string[];
+  isPopular?: boolean;
+}>) {
+  return (
+    <div
+      className={`rounded-2xl bg-white p-8 shadow-card transition hover:-translate-y-0.5 ${
+        isPopular
+          ? "border-2 border-accent ring-2 ring-accent/15"
+          : "border border-gray-200 ring-1 ring-slate-950/5"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-semibold uppercase tracking-wider text-accent">{name}</p>
+        {isPopular ? (
+          <span className="rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-white">
+            Most Popular
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-4 flex items-baseline gap-1">
+        <span className="text-4xl font-bold text-headline">{price}</span>
+        <span className="text-slate-500">/month</span>
+      </div>
+      <ul className="mt-6 space-y-3 text-sm text-slate-700">
+        {features.map((item) => (
+          <li key={item} className="flex gap-3">
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-xs text-white">
+              ✓
+            </span>
+            {item}
+          </li>
+        ))}
+      </ul>
+      <Link
+        href="/signup"
+        className="mt-8 flex w-full items-center justify-center rounded-lg bg-accent py-3.5 text-base font-semibold text-white shadow-md shadow-accent/20 transition hover:bg-accent/92"
+      >
+        Get Started
+      </Link>
     </div>
   );
 }
